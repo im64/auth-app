@@ -5,7 +5,12 @@ add_executable(
     ${PROJECT_NAME}
     main.cpp
     Email/EmailHandlerImpl.cpp
+    Database/DatabaseHandlerImpl.cpp
 )
 
-target_link_libraries(${PROJECT_NAME} quickmail)
+target_link_libraries(
+    ${PROJECT_NAME}
+    quickmail
+    sqlite3
+)
 
