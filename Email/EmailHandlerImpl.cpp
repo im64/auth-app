@@ -19,6 +19,17 @@ namespace
         file.close();
         return res;
     }
+
+    void replaceWord(std::string &text, const std::string &wordToReplace, const std::string &newWord)
+    {
+        size_t pos = text.find(wordToReplace, 0);
+        if (pos != std::string::npos)
+            text.replace(pos, wordToReplace.length(), newWord);
+
+        // size_t pos = text.find(wordToReplace, 0);
+        // if (pos != std::string::npos)
+        //     text.replace(pos, wordToReplace.length(), newWord);
+    }
 }
 
 EmailHandlerImpl::EmailHandlerImpl(const std::string &filepath)
@@ -35,8 +46,7 @@ int EmailHandlerImpl::sendEmail(const std::string &body, const std::string &rece
 
     quickmail mailobj = quickmail_create(login.c_str(), subject.c_str());
     quickmail_add_to(mailobj, recepient.c_str());
-    quickmail_add_body_memory(mailobj, "text/html", const_cast<char*>(body.c_str()), body.length(), 0);
-
+    quickmail_add_body_memory(mailobj, "text/html", const_cast<char *>(body.c_str()), body.length(), 0);
 
     const char *errmsg = quickmail_send_secure(mailobj, "smtp.gmail.com", 465, login.c_str(), password.c_str());
 
@@ -45,30 +55,43 @@ int EmailHandlerImpl::sendEmail(const std::string &body, const std::string &rece
     return errmsg == 0;
 }
 
-int EmailHandlerImpl::sendConfirmation(const std::string &recepient)
+int EmailHandlerImpl::sendConfirmationCode(const std::string &recepient, const std::string &username, const std::string &code)
 {
-    auto body = fileToString("Email/Letters/confirmation.html");
+    auto body = fileToString("Email/Letters/confirmationCode.html");
+    replaceWord(body, "USERNAME", username);
+    replaceWord(body, "CODE", code);
+
     std::string subject{"Please confirm your email"};
     return sendEmail(body, recepient, subject);
 }
 
-int EmailHandlerImpl::sendPasswordRecovery(const std::string &recepient)
+int EmailHandlerImpl::sendPasswordRecovery(const std::string &recepient, const std::string &username, const std::string &code)
 {
     auto body = fileToString("Email/Letters/passwordRecovery.html");
+    replaceWord(body, "USERNAME", username);
+    replaceWord(body, "CODE", code);
     std::string subject{"Password Recovery"};
     return sendEmail(body, recepient, subject);
 }
 
-int EmailHandlerImpl::sendRegistrationSuccessful(const std::string &recepient)
+int EmailHandlerImpl::sendRegistrationSuccessful(const std::string &recepient, const std::string &username)
 {
-    auto body = fileToString("Email/Letters/registrationSuccessful.html");
+    std::cout << username << std::endl;
+    std::string body = fileToString("Email/Letters/registrationSuccessful.html");
+    std::cout << body << std::endl;
+    replaceWord(body, "USERNAME", username);
+
+    std::cout << "*****************************" << std::endl;
+    std::cout << body << std::endl;
+
     std::string subject{"Registration Successful!"};
     return sendEmail(body, recepient, subject);
 }
 
-int EmailHandlerImpl::sendPasswordRecoverySuccessful(const std::string &recepient)
+int EmailHandlerImpl::sendPasswordRecoverySuccessful(const std::string &recepient, const std::string &username)
 {
     auto body = fileToString("Email/Letters/passwordChanged.html");
+    replaceWord(body, "USERNAME", username);
     std::string subject{"Password Successfully changed!"};
     return sendEmail(body, recepient, subject);
 }
